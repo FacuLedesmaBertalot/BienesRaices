@@ -87,13 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errores[] = "Elige un vendedor";
     }
 
-    if(!$imagen['name'] || $imagen['error']) {
-        $errores[] = "La imagen es Obligatoria";
-    }
 
     // Validar por tamaño (1MB máximo)
     $medida = 1000 * 1000;
-
     if($imagen['size'] > $medida) {
         $errores[] = "La imagen es muy pesada";
     }
@@ -110,36 +106,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /** SUBIDA DE ARCHIVOS */
 
-        // Crear una carpeta
-        $carpetaImagenes = '../../imagenes/';
+        // // Crear una carpeta
+        // $carpetaImagenes = '../../imagenes/';
 
 
-        if(!is_dir($carpetaImagenes)) {
-            mkdir($carpetaImagenes);
-        }
+        // if(!is_dir($carpetaImagenes)) {
+        //     mkdir($carpetaImagenes);
+        // }
 
-        // Generar un nombre único
-        $nombreImagen = md5(uniqid(rand(), true ) ) . ".jpg";
+        // // Generar un nombre único
+        // $nombreImagen = md5(uniqid(rand(), true ) ) . ".jpg";
 
 
 
-        // Subir la imágen
-        move_uploaded_file($imagen['tmp_name'], $carpetaImagenes . $nombreImagen );
+        // // Subir la imágen
+        // move_uploaded_file($imagen['tmp_name'], $carpetaImagenes . $nombreImagen );
 
 
 
 
         // Insertar en la base de datos
-        $query = " INSERT INTO propiedades (titulo, precio, imagen,  descripcion, habitaciones, wc, estacionamiento, creado, vendedores_id) VALUES ( '$titulo', '$precio', '$nombreImagen', '$descripcion', '$habitaciones', '$wc', '$estacionamiento', '$creado', '$vendedores_id'  )";
+        $query = "UPDATE propiedades SET titulo = '{$titulo}', precio = '{$precio}', descripcion = '{$descripcion}', habitaciones = {$habitaciones}, wc = {$wc}, estacionamiento = {$estacionamiento},vendedores_id = {$vendedores_id} WHERE id = {$id}";
 
-        //echo $query;
+        // echo $query;
 
         $resultado = mysqli_query($db, $query);
 
         if ($resultado) {
             // Redireccionar al usuario
 
-            header('Location: /admin?resultado=1');
+            header('Location: /admin?resultado=2');
         }
     }
 }
@@ -161,7 +157,7 @@ incluirTemplate('header');
 
     <a href="/admin" class="boton boton-verde">Volver</a>
 
-    <form class="formulario" method="POST" action="/admin/propiedades/crear.php" enctype="multipart/form-data">
+    <form class="formulario" method="POST" enctype="multipart/form-data">
         <fieldset>
             <legend>Información General</legend>
 
