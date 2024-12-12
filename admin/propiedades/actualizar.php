@@ -14,6 +14,12 @@ require '../../includes/config/database.php';
 $db = conectarDB();
 
 
+// Obtener los datos de la propiedad
+$consulta = "SELECT * FROM propiedades WHERE id = {$id}";
+$resultado = mysqli_query($db, $consulta);
+$propiedad = mysqli_fetch_assoc($resultado);
+
+
 // Consultar para obtener los vendedores
 $consulta = "SELECT * FROM vendedores";
 $resultado = mysqli_query($db, $consulta);
@@ -22,13 +28,14 @@ $resultado = mysqli_query($db, $consulta);
 
 $errores = [];
 
-$titulo = '';
-$precio = '';
-$descripcion = '';
-$habitaciones = '';
-$wc = '';
-$estacionamiento = '';
-$vendedores_id = '';
+$titulo = $propiedad['titulo'];
+$precio = $propiedad['precio'];
+$descripcion = $propiedad['descripcion'];
+$habitaciones = $propiedad['habitaciones'];
+$wc = $propiedad['wc'];
+$estacionamiento = $propiedad['estacionamiento'];
+$vendedores_id = $propiedad['vendedores_id'];
+$imagenPropiedad = $propiedad['imagen'];
 
 
 // Ejecuta el código después de que el usuario envia el formulario
@@ -166,6 +173,8 @@ incluirTemplate('header');
 
             <label for="imagen">Imagen:</label>
             <input type="file" id="imagen" accept="image/jpeg, image/png" name="imagen">
+
+            <img src="/imagenes/<?php echo $imagenPropiedad; ?>" class="imagen-small" >
 
             <label for="descripcion">Descripcion</label>
             <textarea id="descripcion" name="descripcion"><?php echo $descripcion; ?></textarea>
