@@ -4,7 +4,7 @@ $id = $_GET['id'];
 $id = filter_var($id, FILTER_VALIDATE_INT);
 
 
-if(!$id) {
+if (!$id) {
     header('Location: /admin');
 }
 
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validar por tamaño (1MB máximo)
     $medida = 1000 * 1000;
-    if($imagen['size'] > $medida) {
+    if ($imagen['size'] > $medida) {
         $errores[] = "La imagen es muy pesada";
     }
 
@@ -104,29 +104,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Revisar que el array de errores este vacío
     if (empty($errores)) {
 
+        // Crear una carpeta
+        $carpetaImagenes = '../../imagenes/';
+
+        if (!is_dir($carpetaImagenes)) {
+            mkdir($carpetaImagenes);
+        }
+
+        $nombreImagen = '';
+
         /** SUBIDA DE ARCHIVOS */
+        if ($imagen['name']) {
+            // Elimina la imágen previa
+            unlink($carpetaImagenes . $propiedad['imagen']);
 
-        // // Crear una carpeta
-        // $carpetaImagenes = '../../imagenes/';
+            // Generar un nombre único
+            $nombreImagen = md5(uniqid(rand(), true)) . ".jpg";
 
-
-        // if(!is_dir($carpetaImagenes)) {
-        //     mkdir($carpetaImagenes);
-        // }
-
-        // // Generar un nombre único
-        // $nombreImagen = md5(uniqid(rand(), true ) ) . ".jpg";
-
-
-
-        // // Subir la imágen
-        // move_uploaded_file($imagen['tmp_name'], $carpetaImagenes . $nombreImagen );
-
-
+            // Subir la imágen
+            move_uploaded_file($imagen['tmp_name'], $carpetaImagenes . $nombreImagen);
+        } else {
+            $nombreImagen = $propiedad['imagen'];
+        }
 
 
         // Insertar en la base de datos
-        $query = "UPDATE propiedades SET titulo = '{$titulo}', precio = '{$precio}', descripcion = '{$descripcion}', habitaciones = {$habitaciones}, wc = {$wc}, estacionamiento = {$estacionamiento},vendedores_id = {$vendedores_id} WHERE id = {$id}";
+        $query = "UPDATE propiedades SET titulo = '{$titulo}', precio = '{$precio}', imagen = '{$nombreImagen}', descripcion = '{$descripcion}', habitaciones = {$habitaciones}, wc = {$wc}, estacionamiento = {$estacionamiento},vendedores_id = {$vendedores_id} WHERE id = {$id}";
 
         // echo $query;
 
@@ -170,7 +173,7 @@ incluirTemplate('header');
             <label for="imagen">Imagen:</label>
             <input type="file" id="imagen" accept="image/jpeg, image/png" name="imagen">
 
-            <img src="/imagenes/<?php echo $imagenPropiedad; ?>" class="imagen-small" >
+            <img src="/imagenes/<?php echo $imagenPropiedad; ?>" class="imagen-small">
 
             <label for="descripcion">Descripcion</label>
             <textarea id="descripcion" name="descripcion"><?php echo $descripcion; ?></textarea>
