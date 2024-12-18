@@ -17,5 +17,3 @@ echo $query;
 
 // Agregarlo a la DB
 mysqli_query($db, $query);
-
-
