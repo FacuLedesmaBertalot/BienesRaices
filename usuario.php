@@ -6,6 +6,7 @@ $db = conectarDB();
 
 // Crear un email y password
 $email = "correo@correo.com";
+
 $password = "123456";
 
 
