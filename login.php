@@ -26,11 +26,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $query = "SELECT * FROM usuarios WHERE email = '{$email}' ";
         $resultado = mysqli_query($db, $query);
 
-        var_dump($resultado);
-
+        
         if($resultado->num_rows) {
             // Revisar si el password es correcto
+            $usuario = mysqli_fetch_assoc($resultado);
             
+            // Verificar si el password es correcto o no
+
+            $auth = password_verify($password, $usuario['password']);
+            
+            if($auth) {
+                // El Usuario esta autenticado
+            } else {
+                $errores[]= "El password es Incorrecto";
+            }
 
         } else {
             $errores[] = "El Usuario no Existe";
