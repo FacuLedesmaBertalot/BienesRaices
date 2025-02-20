@@ -30,9 +30,10 @@ $vendedores_id = '';
 
 // Ejecuta el código después de que el usuario envia el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // echo "<pre>";
-    // var_dump($_POST);
-    // echo "<pre>";
+
+    $propiedad = new Propiedad($_POST);
+
+    $propiedad->guardar();
 
     $titulo = mysqli_real_escape_string($db, $_POST['titulo']);
     $precio = mysqli_real_escape_string($db, $_POST['precio']);
@@ -184,7 +185,7 @@ incluirTemplate('header');
         <fieldset>
             <legend>Vendedor</legend>
 
-            <select name="vendedor">
+            <select name="vendedorId">
                 <option value="">--Seleccione--</option>
                 <?php while ($vendedor = mysqli_fetch_assoc($resultado)): ?>
                     <option <?php echo $vendedores_id === $vendedor['id'] ? 'selected' : ''; ?> value="<?php echo $vendedor['id']; ?>"> <?php echo $vendedor['nombre'] . " " . $vendedor['apellido']; ?> </option>
