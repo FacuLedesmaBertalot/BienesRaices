@@ -18,6 +18,11 @@ class Propiedad {
     public $creado;
     public $vendedores_id;
 
+    // Definir la Conexión a la BD
+    public static function setDB($database) {
+        self::$db= $database;
+    }
+
     public function __construct($args = []) {
 
         $this->id = $args['id'] ?? '';
@@ -34,6 +39,10 @@ class Propiedad {
     }
 
     public function guardar() {
+        
+        // Sanitizar los Datos
+        $atributos = $this->sanitizarAtributos();
+
 
         // Insertar en la base de datos
         $query = " INSERT INTO propiedades (titulo, precio, imagen,  descripcion, habitaciones, wc, estacionamiento, creado, vendedores_id) VALUES ( '$this->titulo', '$this->precio', '$this->imagen', '$this->descripcion', '$this->habitaciones', '$this->wc', '$this->estacionamiento', '$this->creado', '$this->vendedores_id'  )";
@@ -43,8 +52,11 @@ class Propiedad {
         debuguear($resultado);
     }
 
-    // Definir la Conexión a la BD
-    public static function setDB($database) {
-        self::$db= $database;
+
+
+    public function sanitizarAtributos() {
+        debuguear('Sanitizando...');
+
     }
+
 }
