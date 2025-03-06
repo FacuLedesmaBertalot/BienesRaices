@@ -1,6 +1,7 @@
 <?php
 
 // Importar la conexión
+// Incluye el header
 require 'includes/app.php';
 
 $db = conectarDB();
@@ -9,13 +10,13 @@ $db = conectarDB();
 $email = "correo@correo.com";
 $password = "123456";
 
-$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+$passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
 
 // Query para crear el usuario
-$query = " INSERT INTO usuarios(email, password) VALUES ('{$email}', '{$passwordHash}'); ";
+$query = " INSERT INTO usuarios (email, password) VALUES ( '${email}', '${passwordHash}'); ";
 
 // echo $query;
 
-// Agregarlo a la DB
+// Agregarlo a la base de datos
 mysqli_query($db, $query);

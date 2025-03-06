@@ -1,98 +1,72 @@
-<?php
+<?php 
 
-require 'includes/app.php';
-$db = conectarDB();
+    // Incluye el header
+    require 'includes/app.php';
+    use App\Admin;
 
+    $errores = Admin::getErrores();
 
-// Autenticar el usuario
+    if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-$errores = [];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $email = mysqli_real_escape_string($db, filter_var($_POST['email'], FILTER_VALIDATE_EMAIL));
-    $password = mysqli_real_escape_string($db, $_POST['password']);
-
-    if (!$email) {
-        $errores[] = "El email es obligatorio o no es válido";
-    }
-    if (!$password) {
-        $errores[] = "El password es obligatorio";
-    }
-
-    if(empty($errores)) {
-
-        // Revisar si el Usuario existe
-        $query = "SELECT * FROM usuarios WHERE email = '{$email}' ";
-        $resultado = mysqli_query($db, $query);
-
+        // Instanciar admin
+        $admin = new Admin($_POST['admin']);
+        $errores = $admin->validar();
         
-        if($resultado->num_rows) {
-            // Revisar si el password es correcto
-            $usuario = mysqli_fetch_assoc($resultado);
+        if(empty($errores)) {
+
+            // Revisar si el usuario existe.
+            $resultado = $admin->existeUsuario();
+
+            // Asignar el resultado del arreglo de resultado
+            [$existe, $resultado] = $resultado;
             
-            // Verificar si el password es correcto o no
+            if( $existe ) {
+                // Usuario existe, verificar su password
+                $resultado = $admin->verificarPassword($resultado);
+                [$auth] = $resultado;
 
-            $auth = password_verify($password, $usuario['password']);
-            
-            if($auth) {
-                // El Usuario esta autenticado
-                session_start();
-
-                // Llenar el arreglo de la sesión
-                $_SESSION['usuario'] = $usuario['email'];
-                $_SESSION['login'] = true;
-
-                header('Location: /admin');
-
+                // Verificar si el password es correcto o no
+                if(!$auth) {
+                    return header('Location: /admin');
+                } else {
+                    $errores = $resultado[1];
+                }
             } else {
-                $errores[]= "El password es Incorrecto";
+                $errores = $resultado;
             }
-
-        } else {
-            $errores[] = "El Usuario no Existe";
         }
 
-        
     }
-}
 
 
-//Incluye el header
-incluirTemplate('header');
 
+    incluirTemplate('header');
 ?>
 
-<main class="contenedor seccion contenido-centrado">
-    <h1>Iniciar Sesión</h1>
+    <main class="contenedor seccion contenido-centrado">
+        <h1>Iniciar Sesión</h1>
 
-    <?php foreach ($errores as $error): ?>
-        <div class="alerta error">
-            <?php echo $error; ?>
-        </div>
+        <?php foreach($errores as $error): ?>
+            <div class="alerta error">
+                <?php echo $error; ?>
+            </div>
+        <?php endforeach; ?>
 
+        <form method="POST" class="formulario" novalidate>
+            <fieldset>
+                <legend>Email y Password</legend>
 
-    <?php endforeach; ?>
+                <label for="email">E-mail</label>
+                <input type="email" name="admin[email]" placeholder="Tu Email" id="email">
 
+                <label for="password">Password</label>
+                <input type="password" name="admin[password]" placeholder="Tu Password" id="password">
+            </fieldset>
+        
+            <input type="submit" value="Iniciar Sesión" class="boton boton-verde">
+        </form>
+    </main>
 
-    <form method="POST" class="formulario">
-
-        <fieldset>
-            <legend>Email y Password</legend>
-
-            <label for="email">E-mail</label>
-            <input type="email" name="email" placeholder="Tu Email" id="email">
-
-            <label for="password">Password</label>
-            <input type="password" name="password" placeholder="Tu Password" id="password">
-        </fieldset>
-
-        <input type="submit" value="Iniciar Sesión" class="boton boton-verde">
-
-    </form>
-</main>
-
-
-<?php
-incluirTemplate('footer');
+<?php 
+    incluirTemplate('footer');
 ?>

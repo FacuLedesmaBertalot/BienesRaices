@@ -1,9 +1,9 @@
 <?php
-if(!isset($_SESSION)) {
-    session_start();
-}
+    if(!isset($_SESSION)) {
+        session_start();
+    }
 
-$auth = $_SESSION['login'] ?? false;
+    $auth = $_SESSION['login'] ?? false;
 ?>
 
 <!DOCTYPE html>
@@ -16,7 +16,7 @@ $auth = $_SESSION['login'] ?? false;
 </head>
 <body>
     
-    <header class="header <?php echo $inicio  ? 'inicio' : '' ?>">
+    <header class="header <?php echo $inicio  ? 'inicio' : ''; ?>">
         <div class="contenedor contenido-header">
             <div class="barra">
                 <a href="/">
@@ -42,11 +42,6 @@ $auth = $_SESSION['login'] ?? false;
                 
             </div> <!--.barra-->
 
-            <?php
-            if($inicio) {
-                echo "<h1>Venta de Casas y Departamentos Exclusivos de Lujo</h1>";
-            }
-            
-            ?>
+            <?php  echo $inicio ? "<h1>Venta de Casas y Departamentos Exclusivos de Lujo</h1>" : ''; ?>
         </div>
     </header>

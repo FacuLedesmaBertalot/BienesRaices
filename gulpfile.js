@@ -1,82 +1,65 @@
-import path from 'path'
-import fs from 'fs'
-import { glob } from 'glob'
-import { src, dest, watch, series } from 'gulp'
-import * as dartSass from 'sass'
-import gulpSass from 'gulp-sass'
-import concat from 'gulp-concat'
-import terser from 'gulp-terser'
-import sharp from 'sharp'
-import rename from 'gulp-rename'
-
-const sass = gulpSass(dartSass)
+const { src, dest, watch , parallel } = require('gulp');
+const sass = require('gulp-sass');
+const autoprefixer = require('autoprefixer');
+const postcss    = require('gulp-postcss')
+const sourcemaps = require('gulp-sourcemaps')
+const cssnano = require('cssnano');
+const concat = require('gulp-concat');
+const terser = require('gulp-terser-js');
+const rename = require('gulp-rename');
+const imagemin = require('gulp-imagemin');
+const notify = require('gulp-notify');
+const cache = require('gulp-cache');
+const webp = require('gulp-webp');
 
 const paths = {
     scss: 'src/scss/**/*.scss',
-    js: 'src/js/**/*.js'
+    js: 'src/js/**/*.js',
+    imagenes: 'src/img/**/*'
 }
 
-export function css( done ) {
-    src(paths.scss, {sourcemaps: true})
-        .pipe( sass({
-            outputStyle: 'compressed'
-        }).on('error', sass.logError) )
-        .pipe( dest('./build/css', {sourcemaps: '.'}) );
-    done()
+// css es una función que se puede llamar automaticamente
+function css() {
+    return src(paths.scss)
+        .pipe(sourcemaps.init())
+        .pipe(sass())
+        .pipe(postcss([autoprefixer(), cssnano()]))
+        // .pipe(postcss([autoprefixer()]))
+        .pipe(sourcemaps.write('.'))
+        .pipe( dest('./build/css') );
 }
 
-export function js( done ) {
-    src(paths.js)
+
+function javascript() {
+    return src(paths.js)
+      .pipe(sourcemaps.init())
       .pipe(concat('bundle.js')) // final output file name
       .pipe(terser())
+      .pipe(sourcemaps.write('.'))
       .pipe(rename({ suffix: '.min' }))
       .pipe(dest('./build/js'))
-    done()
 }
 
-export async function imagenes(done) {
-    const srcDir = './src/img';
-    const buildDir = './build/img';
-    const images =  await glob('./src/img/**/*')
-
-    images.forEach(file => {
-        const relativePath = path.relative(srcDir, path.dirname(file));
-        const outputSubDir = path.join(buildDir, relativePath);
-        procesarImagenes(file, outputSubDir);
-    });
-    done();
+function imagenes() {
+    return src(paths.imagenes)
+        .pipe(cache(imagemin({ optimizationLevel: 3})))
+        .pipe(dest('build/img'))
+        .pipe(notify({ message: 'Imagen Completada'}));
 }
 
-function procesarImagenes(file, outputSubDir) {
-    if (!fs.existsSync(outputSubDir)) {
-        fs.mkdirSync(outputSubDir, { recursive: true })
-    }
-    const baseName = path.basename(file, path.extname(file))
-    const extName = path.extname(file)
-
-    if (extName.toLowerCase() === '.svg') {
-        // If it's an SVG file, move it to the output directory
-        const outputFile = path.join(outputSubDir, `${baseName}${extName}`);
-    fs.copyFileSync(file, outputFile);
-    } else {
-        // For other image formats, process them with sharp
-        const outputFile = path.join(outputSubDir, `${baseName}${extName}`);
-        const outputFileWebp = path.join(outputSubDir, `${baseName}.webp`);
-        const outputFileAvif = path.join(outputSubDir, `${baseName}.avif`);
-        const options = { quality: 80 };
-
-        sharp(file).jpeg(options).toFile(outputFile);
-        sharp(file).webp(options).toFile(outputFileWebp);
-        sharp(file).avif().toFile(outputFileAvif);
-    }
+function versionWebp() {
+    return src(paths.imagenes)
+        .pipe( webp() )
+        .pipe(dest('build/img'))
+        .pipe(notify({ message: 'Imagen Completada'}));
 }
 
 
-
-export function dev() {
+function watchArchivos() {
     watch( paths.scss, css );
-    watch( paths.js, js );
-    watch('src/img/**/*.{png,jpg}', imagenes)
+    watch( paths.js, javascript );
+    watch( paths.imagenes, imagenes );
+    watch( paths.imagenes, versionWebp );
 }
-
-export default series( js, css, imagenes, dev )
+  
+exports.default = parallel(css, javascript,  imagenes, versionWebp, watchArchivos ); 

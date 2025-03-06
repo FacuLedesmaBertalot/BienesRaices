@@ -1,12 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
+
     eventListeners();
+
     darkMode();
 });
 
 function darkMode() {
+
     const prefiereDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
-    console.log(prefiereDarkMode)
+
     // console.log(prefiereDarkMode.matches);
+
     if(prefiereDarkMode.matches) {
         document.body.classList.add('dark-mode');
     } else {
