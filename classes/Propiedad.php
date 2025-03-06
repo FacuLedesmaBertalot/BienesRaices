@@ -6,6 +6,7 @@ class Propiedad {
 
     // Base de Datos
     protected static $db;
+    protected static $columnasDB = ['id', 'titulo', 'precio', 'imagen', 'descripcion', 'habitaciones', 'wc', 'estacionamiento', 'creado', 'vendedores_id'];
 
     public $id;
     public $titulo;
@@ -20,7 +21,7 @@ class Propiedad {
 
     // Definir la Conexión a la BD
     public static function setDB($database) {
-        self::$db= $database;
+        self::$db = $database;
     }
 
     public function __construct($args = []) {
@@ -53,10 +54,26 @@ class Propiedad {
     }
 
 
+    // Identificar y unir los atributos de la DB
+    public function atributos() {
+        $atributos = [];
+        foreach(self::$columnasDB as $columna) {
+            if ($columna === 'id') continue;
+            $atributos[$columna] = $this->$columna;
+        }
+        return $atributos;
+    }
+
 
     public function sanitizarAtributos() {
-        debuguear('Sanitizando...');
+        $atributos = $this->atributos();
+        $sanitizado = [];
 
+        foreach( $atributos as $key => $value) {
+            $sanitizado[$key] = self::$db->escape_string($value);
+        }
+
+        return $sanitizado;
     }
 
 }
