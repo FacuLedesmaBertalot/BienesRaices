@@ -8,6 +8,10 @@ class Propiedad {
     protected static $db;
     protected static $columnasDB = ['id', 'titulo', 'precio', 'imagen', 'descripcion', 'habitaciones', 'wc', 'estacionamiento', 'creado', 'vendedores_id'];
 
+    // Errores
+    protected static $errores = [];
+
+
     public $id;
     public $titulo;
     public $precio;
@@ -80,4 +84,54 @@ class Propiedad {
         return $sanitizado;
     }
 
+
+    // Validación
+    public static function getErrores() {
+        return self::$errores;
+    }
+
+    public function validar() {
+
+        if (!$this->titulo) {
+            self::$errores[] = "Debes añadir un título";
+        }
+    
+        if (!$this->precio) {
+            self::$errores[] = "El precio es obligatorio";
+        }
+    
+        if (strlen($this->descripcion) < 50) {
+            self::$errores[] = "La descripción es obligatoria y debe tener al menos 50 caracteres";
+        }
+    
+        if (!$this->habitaciones) {
+            self::$errores[] = "El Número de habitaciones es obligatorio";
+        }
+    
+        if (!$this->wc) {
+            self::$errores[] = "El Número de baños es obligatorio";
+        }
+    
+        if (!$this->estacionamiento) {
+            self::$errores[] = "El Número de lugares de Estacionamiento es obligatorio";
+        }
+    
+        if (!$this->vendedores_id) {
+            self::$errores[] = "Elige un vendedor";
+        }
+    
+        // if(!$this->imagen['name'] || $this->imagen['error']) {
+        //     self::$errores[] = "La imagen es Obligatoria";
+        // }
+    
+        // // Validar por tamaño (1MB máximo)
+        // $medida = 1000 * 1000;
+    
+        // if($this->imagen['size'] > $medida) {
+        //     self::$errores[] = "La imagen es muy pesada";
+        // }
+    
+        return self::$errores;
+    
+    }
 }
